@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPrice } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -135,15 +136,15 @@ export default function ProductCard({ product }: ProductCardProps) {
               {isOnSale ? (
                 <>
                   <span className="text-xl font-bold text-gray-900">
-                    ${salePrice.toFixed(2)}
+                    {formatPrice(salePrice)}
                   </span>
                   <span className="text-sm text-gray-500 line-through">
-                    ${originalPrice.toFixed(2)}
+                    {formatPrice(originalPrice)}
                   </span>
                 </>
               ) : (
                 <span className="text-xl font-bold text-gray-900">
-                  ${product.price}
+                  {formatPrice(product.price)}
                 </span>
               )}
             </div>

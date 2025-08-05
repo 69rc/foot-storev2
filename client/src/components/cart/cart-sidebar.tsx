@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPrice } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -194,7 +195,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         />
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">{item.product.name}</h3>
-                          <p className="text-sm text-gray-500">${item.product.price}</p>
+                          <p className="text-sm text-gray-500">{formatPrice(item.product.price)}</p>
                           {item.size && (
                             <p className="text-xs text-gray-400">Size: {item.size}</p>
                           )}
@@ -246,7 +247,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
             <div className="border-t border-gray-200 pt-6 space-y-4">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total:</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>{formatPrice(totalAmount)}</span>
               </div>
               <Button
                 size="lg"

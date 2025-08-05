@@ -1,11 +1,54 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertCartItemSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure uploads directory exists
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  // Configure multer for image uploads
+  const upload = multer({
+    dest: uploadsDir,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      // Check if file is an image
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed'));
+      }
+    }
+  });
+
+  // Serve uploaded images
+  app.use('/uploads', (req, res, next) => {
+    // Add CORS headers for image serving
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    next();
+  });
+  // Simple static file serving without dynamic import
+  app.get('/uploads/*', (req, res) => {
+    const filePath = path.join(uploadsDir, req.params[0]);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('Error serving file:', err);
+        res.status(404).send('File not found');
+      }
+    });
+  });
+
   // Auth middleware
   await setupAuth(app);
 
@@ -42,6 +85,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching product:", error);
       res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
+  // Image upload endpoint
+  app.post("/api/upload", isAuthenticated, upload.single('image'), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      // Create a proper filename with extension
+      const fileExtension = path.extname(req.file.originalname);
+      const fileName = `${req.file.filename}${fileExtension}`;
+      const oldPath = req.file.path;
+      const newPath = path.join(uploadsDir, fileName);
+      
+      // Rename file to include extension
+      fs.renameSync(oldPath, newPath);
+
+      // Return the URL to access the uploaded image
+      const imageUrl = `/uploads/${fileName}`;
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      res.status(500).json({ message: "Failed to upload image" });
     }
   });
 

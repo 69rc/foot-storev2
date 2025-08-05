@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPrice } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -195,7 +196,7 @@ export default function ProductDetail() {
                       <span className="ml-2 text-gray-600">4.8 (124 reviews)</span>
                     </div>
                   </div>
-                  <p className="text-4xl font-bold text-accent mb-4">${product.price}</p>
+                  <p className="text-4xl font-bold text-accent mb-4">{formatPrice(product.price)}</p>
                   <p className="text-gray-600">{product.description}</p>
                 </div>
 
@@ -316,7 +317,7 @@ export default function ProductDetail() {
                         </svg>
                       </summary>
                       <div className="mt-4 text-gray-600 space-y-2">
-                        <p>• Free shipping on orders over $75</p>
+                        <p>• Free shipping on orders over ₦20,000</p>
                         <p>• 30-day return policy</p>
                         <p>• Express shipping available</p>
                         <p>• Easy returns and exchanges</p>

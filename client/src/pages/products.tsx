@@ -71,17 +71,17 @@ export default function Products() {
       
       for (const range of priceRange) {
         switch (range) {
-          case "under50":
-            if (price < 50) matchesPriceRange = true;
+          case "under15000":
+            if (price < 15000) matchesPriceRange = true;
             break;
-          case "50-100":
-            if (price >= 50 && price <= 100) matchesPriceRange = true;
+          case "15000-30000":
+            if (price >= 15000 && price <= 30000) matchesPriceRange = true;
             break;
-          case "100-200":
-            if (price >= 100 && price <= 200) matchesPriceRange = true;
+          case "30000-60000":
+            if (price >= 30000 && price <= 60000) matchesPriceRange = true;
             break;
-          case "over200":
-            if (price > 200) matchesPriceRange = true;
+          case "over60000":
+            if (price > 60000) matchesPriceRange = true;
             break;
         }
       }
@@ -175,10 +175,10 @@ export default function Products() {
                   <Label className="text-sm font-medium mb-3 block">Price Range</Label>
                   <div className="space-y-2">
                     {[
-                      { value: "under50", label: "Under $50" },
-                      { value: "50-100", label: "$50 - $100" },
-                      { value: "100-200", label: "$100 - $200" },
-                      { value: "over200", label: "Over $200" }
+                      { value: "under15000", label: "Under ₦15,000" },
+                      { value: "15000-30000", label: "₦15,000 - ₦30,000" },
+                      { value: "30000-60000", label: "₦30,000 - ₦60,000" },
+                      { value: "over60000", label: "Over ₦60,000" }
                     ].map((range) => (
                       <div key={range.value} className="flex items-center space-x-2">
                         <Checkbox

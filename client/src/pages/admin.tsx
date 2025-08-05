@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPrice } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -162,7 +163,7 @@ export default function Admin() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
-                  <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+                  <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
                 </div>
               </div>
             </CardContent>
@@ -241,7 +242,7 @@ export default function Admin() {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>${product.price}</TableCell>
+                          <TableCell>{formatPrice(product.price)}</TableCell>
                           <TableCell>{product.stock}</TableCell>
                           <TableCell>
                             <Badge variant="secondary" className="capitalize">
@@ -314,7 +315,7 @@ export default function Admin() {
                           <TableCell>
                             {new Date(order.createdAt!).toLocaleDateString()}
                           </TableCell>
-                          <TableCell>${order.totalAmount}</TableCell>
+                          <TableCell>{formatPrice(order.totalAmount)}</TableCell>
                           <TableCell>
                             <Badge className={getStatusColor(order.status)}>
                               {order.status}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Upload, Image as ImageIcon } from "lucide-react";
 import type { z } from "zod";
 
 type FormData = z.infer<typeof insertProductSchema>;
@@ -25,6 +25,9 @@ interface AddProductModalProps {
 export default function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const form = useForm<FormData>({
     resolver: zodResolver(insertProductSchema),
@@ -38,9 +41,35 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
     },
   });
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const result = await response.json();
+      return result.imageUrl;
+    },
+  });
+
   const addProductMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      await apiRequest("POST", "/api/products", data);
+      let imageUrl = data.imageUrl;
+      
+      // If user selected a file, upload it first
+      if (selectedImage) {
+        imageUrl = await uploadImageMutation.mutateAsync(selectedImage);
+      }
+      
+      await apiRequest("POST", "/api/products", { ...data, imageUrl });
     },
     onSuccess: () => {
       toast({
@@ -49,6 +78,8 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       form.reset();
+      setSelectedImage(null);
+      setPreviewUrl("");
       onClose();
     },
     onError: (error) => {
@@ -75,9 +106,34 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
     addProductMutation.mutate(data);
   };
 
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+        form.setValue('imageUrl', ''); // Clear URL input when file is selected
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUrlChange = (url: string) => {
+    if (url) {
+      setSelectedImage(null);
+      setPreviewUrl('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleClose = () => {
-    if (!addProductMutation.isPending) {
+    if (!addProductMutation.isPending && !uploadImageMutation.isPending) {
       form.reset();
+      setSelectedImage(null);
+      setPreviewUrl("");
       onClose();
     }
   };
@@ -123,12 +179,12 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price *</FormLabel>
+                    <FormLabel>Price (₦) *</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
-                        step="0.01" 
-                        placeholder="0.00" 
+                        step="1" 
+                        placeholder="15000" 
                         {...field} 
                         disabled={addProductMutation.isPending}
                       />
@@ -213,28 +269,76 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Image URL *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="url" 
-                      placeholder="https://example.com/image.jpg" 
-                      {...field} 
-                      disabled={addProductMutation.isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  {field.value && (
-                    <div className="mt-2">
-                      <img 
-                        src={field.value} 
-                        alt="Product preview" 
-                        className="w-32 h-32 object-cover rounded-lg border"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
+                  <FormLabel>Product Image *</FormLabel>
+                  <div className="space-y-4">
+                    {/* File Upload Option */}
+                    <div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={addProductMutation.isPending || uploadImageMutation.isPending}
+                        className="w-full"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Image from Device
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
                       />
                     </div>
-                  )}
+                    
+                    {/* OR Divider */}
+                    <div className="flex items-center">
+                      <div className="flex-1 border-t border-gray-300"></div>
+                      <span className="px-3 text-sm text-gray-500">OR</span>
+                      <div className="flex-1 border-t border-gray-300"></div>
+                    </div>
+                    
+                    {/* URL Input Option */}
+                    <FormControl>
+                      <Input 
+                        type="url" 
+                        placeholder="https://example.com/image.jpg" 
+                        {...field} 
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleImageUrlChange(e.target.value);
+                        }}
+                        disabled={addProductMutation.isPending || uploadImageMutation.isPending || !!selectedImage}
+                      />
+                    </FormControl>
+                    
+                    {/* Image Preview */}
+                    {(previewUrl || field.value) && (
+                      <div className="mt-2">
+                        <img 
+                          src={previewUrl || field.value} 
+                          alt="Product preview" 
+                          className="w-32 h-32 object-cover rounded-lg border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        {selectedImage && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            Selected: {selectedImage.name}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {!previewUrl && !field.value && (
+                      <div className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg">
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -251,12 +355,12 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
               <Button 
                 type="submit" 
                 className="bg-accent hover:bg-accent/90"
-                disabled={addProductMutation.isPending}
+                disabled={addProductMutation.isPending || uploadImageMutation.isPending}
               >
-                {addProductMutation.isPending ? (
+                {addProductMutation.isPending || uploadImageMutation.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding Product...
+                    {uploadImageMutation.isPending ? "Uploading Image..." : "Adding Product..."}
                   </>
                 ) : (
                   "Add Product"
