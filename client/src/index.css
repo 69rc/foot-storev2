@@ -1,0 +1,345 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 0%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 0%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 0%);
+  --border: hsl(0, 0%, 90%);
+  --input: hsl(0, 0%, 90%);
+  --primary: hsl(0, 0%, 0%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 0%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 0%, 0%);
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 4%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(0, 0%, 65%);
+  --popover: hsl(0, 0%, 4%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(0, 0%, 4%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(0, 0%, 15%);
+  --input: hsl(0, 0%, 15%);
+  --primary: hsl(0, 0%, 0%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 15%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 63%, 31%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 0%, 84%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Custom styles for the SoleStyle theme */
+.hero-bg {
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+              url('https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=800');
+  background-size: cover;
+  background-position: center;
+}
+
+.product-card-hover {
+  transition: all 0.3s ease;
+}
+
+.product-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.image-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* Ensure proper contrast for buttons */
+.btn-primary {
+  background-color: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 98%);
+}
+
+.btn-primary:hover {
+  background-color: hsl(0, 0%, 20%);
+}
+
+.btn-accent {
+  background-color: hsl(217, 91%, 60%);
+  color: hsl(0, 0%, 98%);
+}
+
+.btn-accent:hover {
+  background-color: hsl(217, 91%, 50%);
+}
+
+/* Typography improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(0, 0%, 96%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(0, 0%, 80%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(0, 0%, 70%);
+}
+
+/* Loading animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Focus states for accessibility */
+.focus-visible:focus {
+  outline: 2px solid hsl(217, 91%, 60%);
+  outline-offset: 2px;
+}
+
+/* Cart badge animation */
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-badge {
+  animation: bounceIn 0.3s ease-out;
+}
+
+/* Product grid responsive improvements */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* Mobile menu improvements */
+.mobile-menu-overlay {
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Improved form styling */
+.form-field {
+  position: relative;
+}
+
+.form-field input:focus + label,
+.form-field input:not(:placeholder-shown) + label {
+  transform: translateY(-20px) scale(0.8);
+  color: hsl(217, 91%, 60%);
+}
+
+/* Status badges */
+.status-badge-pending {
+  background-color: hsl(45, 93%, 89%);
+  color: hsl(45, 93%, 25%);
+}
+
+.status-badge-processing {
+  background-color: hsl(217, 91%, 89%);
+  color: hsl(217, 91%, 25%);
+}
+
+.status-badge-shipped {
+  background-color: hsl(142, 76%, 89%);
+  color: hsl(142, 76%, 25%);
+}
+
+.status-badge-delivered {
+  background-color: hsl(142, 76%, 89%);
+  color: hsl(142, 76%, 25%);
+}
+
+.status-badge-cancelled {
+  background-color: hsl(0, 84%, 89%);
+  color: hsl(0, 84%, 25%);
+}
+
+/* Category cards */
+.category-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.category-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  transition: opacity 0.3s ease;
+}
+
+.category-card:hover::after {
+  opacity: 0.8;
+}
+
+/* Newsletter section */
+.newsletter-section {
+  background: linear-gradient(135deg, hsl(0, 0%, 0%) 0%, hsl(0, 0%, 20%) 100%);
+}
+
+/* Admin dashboard improvements */
+.admin-stats-card {
+  background: linear-gradient(135deg, white 0%, hsl(0, 0%, 98%) 100%);
+  border: 1px solid hsl(0, 0%, 90%);
+  transition: all 0.3s ease;
+}
+
+.admin-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Table improvements */
+.admin-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid hsl(0, 0%, 90%);
+  padding: 1rem;
+}
+
+.admin-table tr:hover {
+  background-color: hsl(0, 0%, 98%);
+}
+
+/* Modal improvements */
+.modal-overlay {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Search improvements */
+.search-input {
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 0 3px hsla(217, 91%, 60%, 0.1);
+}
+
+/* Price formatting */
+.price-original {
+  text-decoration: line-through;
+  color: hsl(0, 0%, 60%);
+}
+
+.price-sale {
+  color: hsl(142, 76%, 36%);
+  font-weight: 600;
+}
+
+/* Toast improvements */
+.toast-success {
+  background-color: hsl(142, 76%, 95%);
+  border-color: hsl(142, 76%, 80%);
+  color: hsl(142, 76%, 20%);
+}
+
+.toast-error {
+  background-color: hsl(0, 84%, 95%);
+  border-color: hsl(0, 84%, 80%);
+  color: hsl(0, 84%, 20%);
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
