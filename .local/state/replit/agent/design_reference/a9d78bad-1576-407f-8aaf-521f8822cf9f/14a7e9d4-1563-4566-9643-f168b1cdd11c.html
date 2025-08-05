@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoleStyle - Premium Shoe Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#000000',
+                        secondary: '#FFFFFF',
+                        accent: '#3B82F6',
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="font-inter bg-gray-50 text-gray-900">
+    <!-- @COMPONENT: Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">SoleStyle</h1>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="text-gray-900 hover:text-accent font-medium transition-colors" data-bind="activeRoute">Home</a>
+                        <a href="#products" class="text-gray-500 hover:text-accent font-medium transition-colors">Products</a>
+                        <a href="#about" class="text-gray-500 hover:text-accent font-medium transition-colors">About</a>
+                        <a href="#contact" class="text-gray-500 hover:text-accent font-medium transition-colors">Contact</a>
+                        <!-- @STATE: userRole === 'admin' -->
+                        <a href="#admin" class="text-gray-500 hover:text-accent font-medium transition-colors" data-role="admin">Admin</a>
+                    </div>
+                </div>
+
+                <!-- User Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="relative hidden sm:block">
+                        <input type="text" placeholder="Search shoes..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" data-functionality="search">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+
+                    <!-- Cart -->
+                    <button class="relative p-2 text-gray-500 hover:text-accent transition-colors" data-event="click:toggleCart">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" data-bind="cartItemCount">3</span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <!-- @STATE: isAuthenticated ? UserMenu : AuthButtons -->
+                        <button class="flex items-center space-x-2 text-gray-500 hover:text-accent transition-colors" data-event="click:toggleUserMenu">
+                            <i class="fas fa-user text-xl"></i>
+                            <span class="hidden sm:block" data-bind="user.name">John Doe</span>
+                        </button>
+                        
+                        <!-- Login/Register Buttons for unauthenticated users -->
+                        <div class="hidden space-x-2" data-state="unauthenticated">
+                            <button class="px-4 py-2 text-accent border border-accent rounded-lg hover:bg-accent hover:text-white transition-colors" data-event="click:showLogin">Login</button>
+                            <button class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-blue-600 transition-colors" data-event="click:showRegister">Sign Up</button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden p-2 text-gray-500 hover:text-accent" data-event="click:toggleMobileMenu">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" data-state="mobileMenuOpen">
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+                <a href="#home" class="block px-3 py-2 text-gray-900 font-medium">Home</a>
+                <a href="#products" class="block px-3 py-2 text-gray-500 hover:text-accent">Products</a>
+                <a href="#about" class="block px-3 py-2 text-gray-500 hover:text-accent">About</a>
+                <a href="#contact" class="block px-3 py-2 text-gray-500 hover:text-accent">Contact</a>
+                <div class="border-t border-gray-200 pt-2">
+                    <a href="#login" class="block px-3 py-2 text-accent">Login</a>
+                    <a href="#register" class="block px-3 py-2 text-accent">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navigation -->
+
+    <!-- @COMPONENT: ShoppingCart Sidebar -->
+    <div class="fixed inset-0 z-50 hidden" data-state="cartOpen">
+        <div class="absolute inset-0 bg-black bg-opacity-50" data-event="click:closeCart"></div>
+        <div class="absolute right-0 top-0 h-full w-96 bg-white shadow-xl">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold">Shopping Cart</h2>
+                    <button class="text-gray-500 hover:text-gray-700" data-event="click:closeCart">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <!-- @MAP: cartItems.map(item => ( -->
+                    <div class="flex items-center space-x-4 pb-6 border-b border-gray-200 mb-6">
+                        <!-- Product image placeholder -->
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100" alt="Nike Air Max" class="w-16 h-16 object-cover rounded-lg" data-bind="item.product.image">
+                        <div class="flex-1">
+                            <h3 class="font-medium" data-bind="item.product.name">Nike Air Max 270</h3>
+                            <p class="text-sm text-gray-500" data-bind="item.product.price">$150.00</p>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <button class="text-gray-400 hover:text-gray-600" data-event="click:decreaseQuantity">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="text-sm" data-bind="item.quantity">2</span>
+                                <button class="text-gray-400 hover:text-gray-600" data-event="click:increaseQuantity">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700" data-event="click:removeItem">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <!-- @END_MAP -->
+                </div>
+                
+                <div class="border-t border-gray-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold">Total:</span>
+                        <span class="text-xl font-bold" data-bind="cartTotal">$450.00</span>
+                    </div>
+                    <button class="w-full bg-accent text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" data-event="click:checkout">
+                        Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ShoppingCart -->
+
+    <!-- @COMPONENT: HomePage -->
+    <main id="home">
+        <!-- Hero Section -->
+        <section class="relative bg-black text-white overflow-hidden">
+            <!-- Hero background image -->
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=800" alt="Premium sneakers collection" class="w-full h-full object-cover opacity-70">
+            </div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+                <div class="max-w-3xl">
+                    <h1 class="text-4xl lg:text-6xl font-bold mb-6">
+                        Step into 
+                        <span class="text-accent">Style</span>
+                    </h1>
+                    <p class="text-xl mb-8 text-gray-200">
+                        Discover our premium collection of sneakers, dress shoes, and athletic footwear from the world's top brands.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button class="bg-accent text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-event="click:shopNow">
+                            Shop Now
+                        </button>
+                        <button class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-black transition-colors" data-event="click:exploreCollection">
+                            Explore Collection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Categories -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Shop by Category</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Find the perfect pair for every occasion</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- @MAP: categories.map(category => ( -->
+                    <div class="group cursor-pointer" data-event="click:navigateCategory">
+                        <!-- Athletic shoes category image -->
+                        <div class="relative rounded-xl overflow-hidden mb-4 aspect-square">
+                            <img src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Athletic shoes collection" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-opacity"></div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-center" data-bind="category.name">Athletic</h3>
+                    </div>
+                    
+                    <div class="group cursor-pointer" data-event="click:navigateCategory">
+                        <!-- Casual shoes category image -->
+                        <div class="relative rounded-xl overflow-hidden mb-4 aspect-square">
+                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Casual sneakers collection" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-opacity"></div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-center" data-bind="category.name">Casual</h3>
+                    </div>
+                    
+                    <div class="group cursor-pointer" data-event="click:navigateCategory">
+                        <!-- Formal shoes category image -->
+                        <div class="relative rounded-xl overflow-hidden mb-4 aspect-square">
+                            <img src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Formal dress shoes collection" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-opacity"></div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-center" data-bind="category.name">Formal</h3>
+                    </div>
+                    
+                    <div class="group cursor-pointer" data-event="click:navigateCategory">
+                        <!-- Boots category image -->
+                        <div class="relative rounded-xl overflow-hidden mb-4 aspect-square">
+                            <img src="https://images.unsplash.com/photo-1608667508764-33cf0726b13a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Boots collection including work and fashion boots" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-opacity"></div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-center" data-bind="category.name">Boots</h3>
+                    </div>
+                    <!-- @END_MAP -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Featured Products</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Handpicked favorites from our latest collection</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- @MAP: featuredProducts.map(product => ( -->
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer" data-event="click:viewProduct">
+                        <div class="relative overflow-hidden">
+                            <!-- Nike Air Max 270 product image -->
+                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Nike Air Max 270 in black and white colorway" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" data-bind="product.image_url">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-red-500 text-white px-2 py-1 text-xs font-medium rounded" data-bind="product.badge">New</span>
+                            </div>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                    <i class="far fa-heart text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-semibold text-lg mb-2" data-bind="product.name">Nike Air Max 270</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Comfortable running shoes with air cushioning</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl font-bold" data-bind="product.price">$150.00</span>
+                                <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer" data-event="click:viewProduct">
+                        <div class="relative overflow-hidden">
+                            <!-- Adidas Ultraboost product image -->
+                            <img src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Adidas Ultraboost running shoes in white" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" data-bind="product.image_url">
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                    <i class="far fa-heart text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-semibold text-lg mb-2" data-bind="product.name">Adidas Ultraboost 22</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Premium running shoes with Boost technology</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl font-bold" data-bind="product.price">$180.00</span>
+                                <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer" data-event="click:viewProduct">
+                        <div class="relative overflow-hidden">
+                            <!-- Converse Chuck Taylor product image -->
+                            <img src="https://images.unsplash.com/photo-1607522370275-f14206abe5d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Classic white Converse Chuck Taylor All Star sneakers" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" data-bind="product.image_url">
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                    <i class="far fa-heart text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-semibold text-lg mb-2" data-bind="product.name">Converse Chuck Taylor</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Classic canvas sneakers, timeless style</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl font-bold" data-bind="product.price">$65.00</span>
+                                <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer" data-event="click:viewProduct">
+                        <div class="relative overflow-hidden">
+                            <!-- Dress shoes product image -->
+                            <img src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Brown leather Oxford dress shoes" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" data-bind="product.image_url">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-green-500 text-white px-2 py-1 text-xs font-medium rounded" data-bind="product.badge">Sale</span>
+                            </div>
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                    <i class="far fa-heart text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-semibold text-lg mb-2" data-bind="product.name">Oxford Dress Shoes</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Premium leather dress shoes for formal occasions</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xl font-bold" data-bind="product.salePrice">$120.00</span>
+                                    <span class="text-sm text-gray-500 line-through" data-bind="product.originalPrice">$160.00</span>
+                                </div>
+                                <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP -->
+                </div>
+                
+                <div class="text-center mt-12">
+                    <button class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors" data-event="click:viewAllProducts">
+                        View All Products
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="py-16 bg-primary text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">Stay in Style</h2>
+                <p class="text-gray-300 mb-8 max-w-2xl mx-auto">
+                    Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and style tips.
+                </p>
+                <div class="max-w-md mx-auto flex space-x-4">
+                    <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-accent focus:outline-none" data-validation="email">
+                    <button class="bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-event="click:subscribe">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- @END_COMPONENT: HomePage -->
+
+    <!-- @COMPONENT: ProductListingPage -->
+    <section id="products" class="hidden py-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Filters Sidebar -->
+                <div class="lg:w-64 bg-white rounded-xl p-6 shadow-sm h-fit">
+                    <h3 class="font-semibold text-lg mb-6">Filters</h3>
+                    
+                    <!-- Price Range -->
+                    <div class="mb-6">
+                        <h4 class="font-medium mb-3">Price Range</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="price">
+                                <span class="ml-2 text-sm">Under $50</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="price">
+                                <span class="ml-2 text-sm">$50 - $100</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="price">
+                                <span class="ml-2 text-sm">$100 - $200</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="price">
+                                <span class="ml-2 text-sm">Over $200</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Brand -->
+                    <div class="mb-6">
+                        <h4 class="font-medium mb-3">Brand</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="brand">
+                                <span class="ml-2 text-sm">Nike</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="brand">
+                                <span class="ml-2 text-sm">Adidas</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="brand">
+                                <span class="ml-2 text-sm">Converse</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-accent focus:ring-accent" data-filter="brand">
+                                <span class="ml-2 text-sm">Vans</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Size -->
+                    <div class="mb-6">
+                        <h4 class="font-medium mb-3">Size</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <!-- @MAP: sizes.map(size => ( -->
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">7</button>
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">8</button>
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">9</button>
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">10</button>
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">11</button>
+                            <button class="border border-gray-300 rounded py-2 text-sm hover:border-accent hover:text-accent transition-colors" data-filter="size" data-bind="size">12</button>
+                            <!-- @END_MAP -->
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-accent text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors" data-event="click:applyFilters">
+                        Apply Filters
+                    </button>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="flex-1">
+                    <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-2xl font-bold">All Products</h2>
+                            <select class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent focus:border-transparent" data-event="change:sortProducts">
+                                <option>Sort by: Featured</option>
+                                <option>Price: Low to High</option>
+                                <option>Price: High to Low</option>
+                                <option>Newest First</option>
+                                <option>Best Selling</option>
+                            </select>
+                        </div>
+                        <p class="text-gray-600 mt-2" data-bind="productCount">Showing 24 of 156 products</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- @MAP: products.map(product => ( -->
+                        <!-- Product cards similar to featured products section -->
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer" data-event="click:viewProduct">
+                            <div class="relative overflow-hidden">
+                                <!-- Running shoes product image -->
+                                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400" alt="Red running shoes with modern design" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" data-bind="product.image_url">
+                                <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-50" data-event="click:addToWishlist">
+                                        <i class="far fa-heart text-gray-600"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="font-semibold text-lg mb-2" data-bind="product.name">Nike Revolution 6</h3>
+                                <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Lightweight running shoes for daily training</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xl font-bold" data-bind="product.price">$70.00</span>
+                                    <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-center mt-12">
+                        <nav class="flex items-center space-x-2">
+                            <button class="px-3 py-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50" data-event="click:previousPage">Previous</button>
+                            <button class="px-3 py-2 rounded-lg bg-accent text-white" data-state="activePage">1</button>
+                            <button class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50" data-event="click:goToPage">2</button>
+                            <button class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50" data-event="click:goToPage">3</button>
+                            <button class="px-3 py-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50" data-event="click:nextPage">Next</button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: ProductListingPage -->
+
+    <!-- @COMPONENT: ProductDetailPage -->
+    <section id="product-detail" class="hidden py-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+                    <!-- Product Images -->
+                    <div class="space-y-4">
+                        <div class="aspect-square overflow-hidden rounded-xl">
+                            <!-- Main product image -->
+                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600" alt="Nike Air Max 270 main product view" class="w-full h-full object-cover" data-bind="product.primaryImage">
+                        </div>
+                        <div class="grid grid-cols-4 gap-4">
+                            <!-- @MAP: productImages.map(image => ( -->
+                            <button class="aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-accent transition-colors" data-event="click:selectImage">
+                                <!-- Product thumbnail images -->
+                                <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" alt="Nike Air Max 270 side view" class="w-full h-full object-cover" data-bind="image.url">
+                            </button>
+                            <!-- @END_MAP -->
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="space-y-6">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2" data-bind="product.name">Nike Air Max 270</h1>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="flex items-center">
+                                    <!-- @MAP: Array(5).fill().map((_, i) => ( -->
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <!-- @END_MAP -->
+                                    <span class="ml-2 text-gray-600" data-bind="product.rating">4.8 (124 reviews)</span>
+                                </div>
+                            </div>
+                            <p class="text-4xl font-bold text-accent mb-4" data-bind="product.price">$150.00</p>
+                            <p class="text-gray-600" data-bind="product.description">
+                                The Nike Air Max 270 delivers visible Air Max cushioning under the heel and a comfortable foam midsole. The upper combines synthetic leather and textile for a secure fit that looks great from the street to the track.
+                            </p>
+                        </div>
+
+                        <!-- Size Selection -->
+                        <div>
+                            <h3 class="font-semibold mb-3">Size</h3>
+                            <div class="grid grid-cols-4 gap-3">
+                                <!-- @MAP: availableSizes.map(size => ( -->
+                                <button class="border border-gray-300 rounded-lg py-3 text-center hover:border-accent hover:text-accent transition-colors" data-event="click:selectSize" data-bind="size">7</button>
+                                <button class="border border-gray-300 rounded-lg py-3 text-center hover:border-accent hover:text-accent transition-colors" data-event="click:selectSize" data-bind="size">8</button>
+                                <button class="border border-accent bg-accent text-white rounded-lg py-3 text-center" data-state="selectedSize" data-bind="size">9</button>
+                                <button class="border border-gray-300 rounded-lg py-3 text-center hover:border-accent hover:text-accent transition-colors" data-event="click:selectSize" data-bind="size">10</button>
+                                <!-- @END_MAP -->
+                            </div>
+                        </div>
+
+                        <!-- Color Selection -->
+                        <div>
+                            <h3 class="font-semibold mb-3">Color</h3>
+                            <div class="flex space-x-3">
+                                <!-- @MAP: availableColors.map(color => ( -->
+                                <button class="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-accent transition-colors" style="background-color: #000000" data-event="click:selectColor" data-bind="color.value"></button>
+                                <button class="w-10 h-10 rounded-full border-2 border-accent ring-2 ring-accent ring-opacity-50" style="background-color: #FFFFFF" data-state="selectedColor" data-bind="color.value"></button>
+                                <button class="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-accent transition-colors" style="background-color: #DC2626" data-event="click:selectColor" data-bind="color.value"></button>
+                                <!-- @END_MAP -->
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div>
+                            <h3 class="font-semibold mb-3">Quantity</h3>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center border border-gray-300 rounded-lg">
+                                    <button class="px-4 py-2 hover:bg-gray-50" data-event="click:decreaseQuantity">-</button>
+                                    <span class="px-4 py-2 border-x border-gray-300" data-bind="quantity">1</span>
+                                    <button class="px-4 py-2 hover:bg-gray-50" data-event="click:increaseQuantity">+</button>
+                                </div>
+                                <span class="text-gray-600" data-bind="stockStatus">In stock (15 available)</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="space-y-4">
+                            <button class="w-full bg-accent text-white py-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-event="click:addToCart">
+                                Add to Cart
+                            </button>
+                            <button class="w-full border-2 border-gray-300 py-4 rounded-lg font-semibold hover:border-accent hover:text-accent transition-colors" data-event="click:addToWishlist">
+                                <i class="far fa-heart mr-2"></i>
+                                Add to Wishlist
+                            </button>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="space-y-4">
+                                <details class="group">
+                                    <summary class="flex justify-between items-center cursor-pointer font-semibold">
+                                        Product Details
+                                        <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                                    </summary>
+                                    <div class="mt-4 text-gray-600 space-y-2">
+                                        <p>• Air Max cushioning in the heel</p>
+                                        <p>• Comfortable foam midsole</p>
+                                        <p>• Synthetic leather and textile upper</p>
+                                        <p>• Rubber outsole for traction</p>
+                                    </div>
+                                </details>
+                                <details class="group">
+                                    <summary class="flex justify-between items-center cursor-pointer font-semibold">
+                                        Shipping & Returns
+                                        <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                                    </summary>
+                                    <div class="mt-4 text-gray-600 space-y-2">
+                                        <p>• Free shipping on orders over $75</p>
+                                        <p>• 30-day return policy</p>
+                                        <p>• Express shipping available</p>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: ProductDetailPage -->
+
+    <!-- @COMPONENT: AuthModal -->
+    <div class="fixed inset-0 z-50 hidden" data-state="authModalOpen">
+        <div class="absolute inset-0 bg-black bg-opacity-50" data-event="click:closeAuthModal"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl w-full max-w-md">
+            <!-- Login Form -->
+            <div class="p-8" data-state="loginForm">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold">Welcome Back</h2>
+                    <p class="text-gray-600 mt-2">Sign in to your account</p>
+                </div>
+                
+                <form class="space-y-6" data-event="submit:handleLogin">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter your email" data-validation="email">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter your password" data-validation="password">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded text-accent focus:ring-accent">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-accent hover:underline">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="w-full bg-accent text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-loading="Signing in...">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">Don't have an account? 
+                        <button class="text-accent hover:underline font-medium" data-event="click:showRegisterForm">Sign up</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="p-8 hidden" data-state="registerForm">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold">Create Account</h2>
+                    <p class="text-gray-600 mt-2">Join us today</p>
+                </div>
+                
+                <form class="space-y-6" data-event="submit:handleRegister">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter your full name" data-validation="name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter your email" data-validation="email">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Create a password" data-validation="password">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" data-bind="userRole">
+                            <option value="customer">Customer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-accent text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-loading="Creating account...">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">Already have an account? 
+                        <button class="text-accent hover:underline font-medium" data-event="click:showLoginForm">Sign in</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AuthModal -->
+
+    <!-- @COMPONENT: AdminDashboard -->
+    <section id="admin" class="hidden py-8 bg-gray-50" data-role="admin">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+                <p class="text-gray-600 mt-2">Manage your store products and orders</p>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-accent">
+                            <i class="fas fa-box text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Products</p>
+                            <p class="text-2xl font-bold" data-bind="stats.totalProducts">156</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                            <p class="text-2xl font-bold" data-bind="stats.totalOrders">1,247</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Revenue</p>
+                            <p class="text-2xl font-bold" data-bind="stats.revenue">$89,432</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Customers</p>
+                            <p class="text-2xl font-bold" data-bind="stats.customers">2,891</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="py-4 px-1 border-b-2 border-accent text-accent font-medium" data-tab="products" data-state="activeTab">
+                            Products
+                        </button>
+                        <button class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" data-tab="orders" data-event="click:switchTab">
+                            Orders
+                        </button>
+                        <button class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" data-tab="customers" data-event="click:switchTab">
+                            Customers
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Products Tab -->
+                <div class="p-6" data-tab-content="products">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Product Management</h2>
+                        <button class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" data-event="click:showAddProduct">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Product
+                        </button>
+                    </div>
+
+                    <!-- Products Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Product</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Price</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Stock</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- @MAP: products.map(product => ( -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center">
+                                            <!-- Product thumbnail -->
+                                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80" alt="Nike Air Max product thumbnail" class="w-12 h-12 rounded-lg object-cover mr-4" data-bind="product.image_url">
+                                            <div>
+                                                <p class="font-medium" data-bind="product.name">Nike Air Max 270</p>
+                                                <p class="text-sm text-gray-500" data-bind="product.category">Athletic</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4" data-bind="product.price">$150.00</td>
+                                    <td class="py-4 px-4" data-bind="product.stock">25</td>
+                                    <td class="py-4 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="product.status">
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="text-accent hover:text-blue-600" data-event="click:editProduct">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-500 hover:text-red-700" data-event="click:deleteProduct">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div class="p-6 hidden" data-tab-content="orders">
+                    <h2 class="text-xl font-bold mb-6">Order Management</h2>
+                    
+                    <!-- Orders Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Order ID</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Customer</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Date</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Total</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- @MAP: orders.map(order => ( -->
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="py-4 px-4 font-medium" data-bind="order.id">#ORD-1001</td>
+                                    <td class="py-4 px-4" data-bind="order.customer.name">John Doe</td>
+                                    <td class="py-4 px-4" data-bind="order.createdAt">Dec 15, 2023</td>
+                                    <td class="py-4 px-4" data-bind="order.total">$320.00</td>
+                                    <td class="py-4 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800" data-bind="order.status">
+                                            Pending
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <button class="text-accent hover:text-blue-600" data-event="click:viewOrder">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: AdminDashboard -->
+
+    <!-- @COMPONENT: AddProductModal -->
+    <div class="fixed inset-0 z-50 hidden" data-state="addProductModalOpen">
+        <div class="absolute inset-0 bg-black bg-opacity-50" data-event="click:closeAddProductModal"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Add New Product</h2>
+                    <button class="text-gray-500 hover:text-gray-700" data-event="click:closeAddProductModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form class="space-y-6" data-event="submit:handleAddProduct">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                            <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter product name" data-validation="required">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                            <input type="number" step="0.01" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="0.00" data-validation="price">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Enter product description" data-validation="required"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                            <input type="number" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="0" data-validation="stock">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" data-validation="required">
+                                <option value="">Select category</option>
+                                <option value="athletic">Athletic</option>
+                                <option value="casual">Casual</option>
+                                <option value="formal">Formal</option>
+                                <option value="boots">Boots</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Image URL</label>
+                        <input type="url" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="https://example.com/image.jpg" data-validation="url">
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors" data-event="click:closeAddProductModal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-blue-600 transition-colors" data-loading="Adding product...">
+                            Add Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AddProductModal -->
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">SoleStyle</h3>
+                    <p class="text-gray-300 mb-4">Your premium destination for the finest footwear from around the world.</p>
+                    <div class="flex space-x-4">
+                        <button class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </button>
+                        <button class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </button>
+                        <button class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition-colors">Athletic</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Casual</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Formal</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Boots</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Size Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Returns</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-12 pt-8 text-center text-gray-300">
+                <p>&copy; 2023 SoleStyle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // TODO: Implement business logic, API calls, or state management
+        (function() {
+            // Navigation and UI state management
+            let currentView = 'home';
+            let isCartOpen = false;
+            let isAuthModalOpen = false;
+            let authFormType = 'login';
+            
+            // Mock data - replace with API calls
+            const mockUser = { name: 'John Doe', role: 'customer' };
+            const mockCartItems = 3;
+            
+            // Simple navigation system
+            function showSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('main > section, #products, #product-detail, #admin').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+                
+                currentView = sectionId;
+            }
+            
+            // Cart functionality
+            function toggleCart() {
+                const cartElement = document.querySelector('[data-state="cartOpen"]');
+                if (cartElement) {
+                    cartElement.classList.toggle('hidden');
+                    isCartOpen = !isCartOpen;
+                }
+            }
+            
+            // Auth modal functionality
+            function showAuthModal(formType = 'login') {
+                const modal = document.querySelector('[data-state="authModalOpen"]');
+                const loginForm = document.querySelector('[data-state="loginForm"]');
+                const registerForm = document.querySelector('[data-state="registerForm"]');
+                
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    isAuthModalOpen = true;
+                    authFormType = formType;
+                    
+                    if (formType === 'login') {
+                        loginForm?.classList.remove('hidden');
+                        registerForm?.classList.add('hidden');
+                    } else {
+                        loginForm?.classList.add('hidden');
+                        registerForm?.classList.remove('hidden');
+                    }
+                }
+            }
+            
+            function closeAuthModal() {
+                const modal = document.querySelector('[data-state="authModalOpen"]');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    isAuthModalOpen = false;
+                }
+            }
+            
+            // Admin modal functionality
+            function showAddProductModal() {
+                const modal = document.querySelector('[data-state="addProductModalOpen"]');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                }
+            }
+            
+            function closeAddProductModal() {
+                const modal = document.querySelector('[data-state="addProductModalOpen"]');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+            
+            // Tab switching for admin dashboard
+            function switchTab(tabName) {
+                // Hide all tab contents
+                document.querySelectorAll('[data-tab-content]').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show target tab content
+                const targetContent = document.querySelector(`[data-tab-content="${tabName}"]`);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                }
+                
+                // Update tab buttons
+                document.querySelectorAll('[data-tab]').forEach(tab => {
+                    tab.classList.remove('border-accent', 'text-accent');
+                    tab.classList.add('border-transparent', 'text-gray-500');
+                });
+                
+                const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+                if (activeTab) {
+                    activeTab.classList.add('border-accent', 'text-accent');
+                    activeTab.classList.remove('border-transparent', 'text-gray-500');
+                }
+            }
+            
+            // Event listeners for navigation
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a[href^="#"], button[data-event]');
+                if (!target) return;
+                
+                const href = target.getAttribute('href');
+                const event = target.getAttribute('data-event');
+                
+                // Handle navigation links
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const sectionId = href.substring(1);
+                    showSection(sectionId);
+                }
+                
+                // Handle button events
+                if (event) {
+                    e.preventDefault();
+                    
+                    switch(event) {
+                        case 'click:toggleCart':
+                            toggleCart();
+                            break;
+                        case 'click:closeCart':
+                            toggleCart();
+                            break;
+                        case 'click:showLogin':
+                            showAuthModal('login');
+                            break;
+                        case 'click:showRegister':
+                            showAuthModal('register');
+                            break;
+                        case 'click:closeAuthModal':
+                            closeAuthModal();
+                            break;
+                        case 'click:showLoginForm':
+                            showAuthModal('login');
+                            break;
+                        case 'click:showRegisterForm':
+                            showAuthModal('register');
+                            break;
+                        case 'click:showAddProduct':
+                            showAddProductModal();
+                            break;
+                        case 'click:closeAddProductModal':
+                            closeAddProductModal();
+                            break;
+                        case 'click:switchTab':
+                            const tabName = target.getAttribute('data-tab');
+                            switchTab(tabName);
+                            break;
+                        case 'click:shopNow':
+                        case 'click:viewAllProducts':
+                            showSection('products');
+                            break;
+                        case 'click:viewProduct':
+                            showSection('product-detail');
+                            break;
+                        default:
+                            console.log(`Event ${event} triggered - implement handler`);
+                    }
+                }
+            });
+            
+            // Initialize the application
+            showSection('home');
+        })();
+    </script>
+</body>
+</html>

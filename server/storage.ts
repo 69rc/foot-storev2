@@ -19,7 +19,7 @@ import {
   type CartWithItems,
   type OrderWithItems,
 } from "@shared/schema";
-import { db } from "./db";
+import {db }  from "./db";
 import { eq, and, desc } from "drizzle-orm";
 
 // Interface for storage operations
@@ -105,61 +105,109 @@ export class DatabaseStorage implements IStorage {
 
   // Cart operations
   async getUserCart(userId: string): Promise<CartWithItems | undefined> {
-    // First get or create cart
-    let [cart] = await db.select().from(carts).where(eq(carts.userId, userId));
-    
-    if (!cart) {
-      [cart] = await db.insert(carts).values({ userId }).returning();
+    try {
+      console.log(`Getting cart for user ${userId}`);
+      
+      // First get or create cart
+      let [cart] = await db.select().from(carts).where(eq(carts.userId, userId));
+      
+      if (!cart) {
+        console.log(`No existing cart found for user ${userId}, creating new cart`);
+        try {
+          [cart] = await db.insert(carts).values({ userId }).returning();
+          console.log(`Created new cart:`, cart);
+        } catch (error) {
+          console.error(`Error creating cart for user ${userId}:`, error);
+          throw error;
+        }
+      } else {
+        console.log(`Found existing cart for user ${userId}:`, cart);
+      }
+
+      // Get cart with items and products
+      console.log(`Fetching items for cart ${cart.id}`);
+      const items = await db
+        .select({
+          id: cartItems.id,
+          cartId: cartItems.cartId,
+          productId: cartItems.productId,
+          quantity: cartItems.quantity,
+          size: cartItems.size,
+          color: cartItems.color,
+          createdAt: cartItems.createdAt,
+          product: products,
+        })
+        .from(cartItems)
+        .innerJoin(products, eq(cartItems.productId, products.id))
+        .where(eq(cartItems.cartId, cart.id));
+
+      console.log(`Found ${items.length} items in cart ${cart.id}`);
+      
+      return {
+        ...cart,
+        items,
+      };
+    } catch (error) {
+      console.error(`Error in getUserCart for user ${userId}:`, error);
+      throw error; // Re-throw to be handled by the route
     }
-
-    // Get cart with items and products
-    const items = await db
-      .select({
-        id: cartItems.id,
-        cartId: cartItems.cartId,
-        productId: cartItems.productId,
-        quantity: cartItems.quantity,
-        size: cartItems.size,
-        color: cartItems.color,
-        createdAt: cartItems.createdAt,
-        product: products,
-      })
-      .from(cartItems)
-      .innerJoin(products, eq(cartItems.productId, products.id))
-      .where(eq(cartItems.cartId, cart.id));
-
-    return {
-      ...cart,
-      items,
-    };
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
-    // Check if item already exists with same product, size, and color
-    const [existingItem] = await db
-      .select()
-      .from(cartItems)
-      .where(
-        and(
-          eq(cartItems.cartId, cartItem.cartId),
-          eq(cartItems.productId, cartItem.productId),
-          eq(cartItems.size, cartItem.size || ""),
-          eq(cartItems.color, cartItem.color || "")
-        )
-      );
+    console.log("Starting addToCart with data:", cartItem);
+    
+    try {
+      // Check if item already exists with same product, size, and color
+      console.log("Checking for existing cart item...");
+      const [existingItem] = await db
+        .select()
+        .from(cartItems)
+        .where(
+          and(
+            eq(cartItems.cartId, cartItem.cartId),
+            eq(cartItems.productId, cartItem.productId),
+            eq(cartItems.size, cartItem.size || ""),
+            eq(cartItems.color, cartItem.color || "")
+          )
+        );
 
-    if (existingItem) {
-      // Update quantity if item exists
-      const [updatedItem] = await db
-        .update(cartItems)
-        .set({ quantity: existingItem.quantity + cartItem.quantity })
-        .where(eq(cartItems.id, existingItem.id))
-        .returning();
-      return updatedItem;
-    } else {
-      // Create new cart item
-      const [newItem] = await db.insert(cartItems).values(cartItem).returning();
-      return newItem;
+      if (existingItem) {
+        console.log("Found existing cart item, updating quantity:", existingItem);
+        // Update quantity if item exists
+        const [updatedItem] = await db
+          .update(cartItems)
+          .set({ 
+            quantity: existingItem.quantity + (cartItem.quantity || 1),
+            updatedAt: new Date()
+          })
+          .where(eq(cartItems.id, existingItem.id))
+          .returning();
+        
+        console.log("Successfully updated cart item quantity:", updatedItem);
+        return updatedItem;
+      } else {
+        console.log("No existing item found, creating new cart item");
+        // Create new cart item
+        try {
+          const [newItem] = await db.insert(cartItems)
+            .values({
+              ...cartItem,
+              quantity: cartItem.quantity || 1,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            })
+            .returning();
+          
+          console.log("Successfully created new cart item:", newItem);
+          return newItem;
+        } catch (error) {
+          console.error("Error creating new cart item:", error);
+          throw new Error(`Failed to create cart item: ${error.message}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error in addToCart:", error);
+      throw new Error(`Failed to add to cart: ${error.message}`);
     }
   }
 

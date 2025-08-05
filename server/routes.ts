@@ -4,7 +4,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { ensureAuthenticated } from "./devAuth";
 import { insertProductSchema, insertCartItemSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -38,6 +38,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.header('Access-Control-Allow-Methods', 'GET');
     next();
   });
+  
   // Simple static file serving without dynamic import
   app.get('/uploads/*', (req, res) => {
     const filePath = path.join(uploadsDir, req.params[0]);
@@ -49,18 +50,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Auth middleware
-  await setupAuth(app);
+  // Auth routes are now handled by devAuth.ts
+  // Auth middleware is applied per-route using ensureAuthenticated
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Get current user
+  app.get('/api/auth/user', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // Changed from req.user.claims.sub to req.user.id
       const user = await storage.getUser(userId);
-      res.json(user);
+      res.json(user || req.user); // Fallback to req.user if not in storage
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error('Error getting user:', error);
+      res.status(500).json({ error: 'Failed to get user' });
     }
   });
 
@@ -89,15 +90,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image upload endpoint
-  app.post("/api/upload", isAuthenticated, upload.single('image'), async (req: any, res) => {
+  app.post("/api/upload", ensureAuthenticated, upload.single('image'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
       }
@@ -121,12 +117,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin-only product management
-  app.post("/api/products", isAuthenticated, async (req: any, res) => {
+  app.post("/api/products", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       
-      if (!user || user.role !== 'admin') {
+      if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -142,12 +137,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/products/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/products/:id", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       
-      if (!user || user.role !== 'admin') {
+      if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -163,12 +157,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/products/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/products/:id", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       
-      if (!user || user.role !== 'admin') {
+      if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -181,9 +174,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cart routes
-  app.get("/api/cart", isAuthenticated, async (req: any, res) => {
+  app.get("/api/cart", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const cart = await storage.getUserCart(userId);
       res.json(cart);
     } catch (error) {
@@ -192,32 +185,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart/items", isAuthenticated, async (req: any, res) => {
+  app.post("/api/cart/items", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
+      console.log(" [CART] Adding item to cart. User ID:", userId);
+      console.log(" [CART] Request body:", req.body);
+      
+      // Get or create user's cart
+      console.log(" [CART] Getting user's cart...");
       const cart = await storage.getUserCart(userId);
       
       if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
+        console.error(" [CART] Failed to get or create cart for user:", userId);
+        return res.status(500).json({ message: "Failed to get or create cart" });
       }
+      console.log(" [CART] Got cart:", cart.id);
 
+      // Validate request data
+      console.log(" [CART] Validating request data...");
       const validatedData = insertCartItemSchema.parse({
         ...req.body,
         cartId: cart.id,
       });
+      console.log(" [CART] Validated data:", validatedData);
       
+      // Add item to cart
+      console.log(" [CART] Adding item to cart...");
       const cartItem = await storage.addToCart(validatedData);
+      console.log(" [CART] Successfully added to cart:", cartItem);
+      
       res.status(201).json(cartItem);
     } catch (error) {
+      console.error(" [CART] Error adding item to cart:", error);
+      
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid cart item data", errors: error.errors });
+        console.error(" [CART] Validation error:", error.errors);
+        return res.status(400).json({ 
+          message: "Invalid cart item data", 
+          errors: error.errors 
+        });
       }
-      console.error("Error adding to cart:", error);
-      res.status(500).json({ message: "Failed to add to cart" });
+      
+      res.status(500).json({ 
+        message: "Failed to add to cart",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 
-  app.put("/api/cart/items/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/cart/items/:id", ensureAuthenticated, async (req: any, res) => {
     try {
       const { quantity } = req.body;
       if (!quantity || quantity < 1) {
@@ -232,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/items/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/cart/items/:id", ensureAuthenticated, async (req: any, res) => {
     try {
       await storage.removeFromCart(req.params.id);
       res.status(204).send();
@@ -243,9 +259,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Order routes
-  app.post("/api/orders", isAuthenticated, async (req: any, res) => {
+  app.post("/api/orders", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const cart = await storage.getUserCart(userId);
       
       if (!cart || cart.items.length === 0) {
@@ -285,17 +301,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders", isAuthenticated, async (req: any, res) => {
+  app.get("/api/orders", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       
       let orders;
-      if (user?.role === 'admin') {
-        // Admin can see all orders
+      if (req.user.role === 'admin') {
         orders = await storage.getAllOrders();
       } else {
-        // Regular users see only their orders
         orders = await storage.getUserOrders(userId);
       }
       
@@ -306,19 +319,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/orders/:id", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
       const order = await storage.getOrder(req.params.id);
       
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
       
-      // Check if user can access this order
-      if (user?.role !== 'admin' && order.userId !== userId) {
-        return res.status(403).json({ message: "Access denied" });
+      // Only allow admin or the order owner to view the order
+      if (req.user.role !== 'admin' && order.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to view this order" });
       }
       
       res.json(order);
@@ -329,16 +341,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin-only order status update
-  app.put("/api/orders/:id/status", isAuthenticated, async (req: any, res) => {
+  app.put("/api/orders/:id/status", ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user || user.role !== 'admin') {
+      if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
-
+      
       const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
       const order = await storage.updateOrderStatus(req.params.id, status);
       res.json(order);
     } catch (error) {
@@ -347,6 +360,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  const server = createServer(app);
+  return server;
 }
