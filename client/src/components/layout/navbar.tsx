@@ -53,7 +53,7 @@ export default function Navbar({ isCartOpen, setIsCartOpen }: NavbarProps) {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-primary">SoleStyle</h1>
+              <h1 className="text-2xl font-bold text-primary">Footstore</h1>
             </Link>
           </div>
 

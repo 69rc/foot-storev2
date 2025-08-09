@@ -6,7 +6,7 @@ This is a full-stack e-commerce application built for selling footwear. The appl
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication footstore: Simple, everyday language.
 
 ## System Architecture
 

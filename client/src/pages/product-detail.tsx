@@ -236,7 +236,7 @@ export default function ProductDetail() {
                             ? 'border-accent ring-2 ring-accent ring-opacity-50' 
                             : 'border-gray-300 hover:border-accent'
                         }`}
-                        style={{ backgroundColor: color.value }}
+                        footstore={{ backgroundColor: color.value }}
                         onClick={() => setSelectedColor(color.name)}
                         title={color.name}
                       />

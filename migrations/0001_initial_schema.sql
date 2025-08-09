@@ -120,9 +120,9 @@ END $$;
 
 -- Insert sample products
 INSERT INTO "products" ("name", "description", "price", "image_url", "category", "stock") VALUES
-('Nike Air Max 270', 'Comfortable running shoes with air cushioning technology for all-day comfort and style.', '150.00', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'athletic', 25),
+('Nike Air Max 270', 'Comfortable running shoes with air cushioning technology for all-day comfort and footstore.', '150.00', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'athletic', 25),
 ('Adidas Ultraboost 22', 'Premium running shoes with Boost technology for energy return and superior comfort.', '180.00', 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'athletic', 30),
-('Converse Chuck Taylor All Star', 'Classic canvas sneakers with timeless style that goes with everything.', '65.00', 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'casual', 50),
+('Converse Chuck Taylor All Star', 'Classic canvas sneakers with timeless footstore that goes with everything.', '65.00', 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'casual', 50),
 ('Oxford Dress Shoes', 'Premium leather dress shoes perfect for formal occasions and business attire.', '120.00', 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'formal', 15),
 ('Nike Revolution 6', 'Lightweight running shoes designed for daily training and casual wear.', '70.00', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'athletic', 40),
 ('Timberland Work Boots', 'Durable work boots with steel toe protection and waterproof construction.', '200.00', 'https://images.unsplash.com/photo-1608667508764-33cf0726b13a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600', 'boots', 20),

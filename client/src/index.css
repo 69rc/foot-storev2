@@ -58,12 +58,13 @@
   }
 }
 
-/* Custom styles for the SoleStyle theme */
+/* Custom footstores for the Solefootstore theme */
 .hero-bg {
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-              url('https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=800');
+              url('.././../uploads/be8ded9ca7b309b962eee29a2ba35185.jpeg');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
 .product-card-hover {
@@ -332,7 +333,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Print styles */
+/* Print footstores */
 @media print {
   .no-print {
     display: none !important;

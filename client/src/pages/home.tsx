@@ -9,22 +9,23 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { Product } from "@shared/schema";
 
+
 const categories = [
   {
     name: "Athletic",
-    image: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"
+    image: "../../../uploads/61455443dc2dd4e242f13fc24f02c395.jpeg"
   },
   {
     name: "Casual", 
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"
+    image: "../../../uploads/2b856485d6aae93089904145c5b46b7a.jpeg"
   },
   {
     name: "Formal",
-    image: "https://images.unsplash.com/photo-1614252369475-531eba835eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"
+    image: "../../../uploads/5eea60fbda7b13cc50cf0a6b421c040c.jpeg"
   },
   {
     name: "Boots",
-    image: "https://images.unsplash.com/photo-1608667508764-33cf0726b13a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"
+    image: "../../../uploads/61455443dc2dd4e242f13fc24f02c395.jpeg"
   }
 ];
 
@@ -75,7 +76,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6">
               Step into{" "}
-              <span className="text-accent">Style</span>
+              <span className="text-accent">footstore</span>
             </h1>
             <p className="text-xl mb-8 text-gray-200">
               Discover our premium collection of sneakers, dress shoes, and athletic footwear from the world's top brands.
@@ -91,7 +92,7 @@ export default function Home() {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4"
+                className="border-2 border-white text-black hover:bg-white hover:text-black px-8 py-4"
                 onClick={() => setLocation('/products')}
               >
                 Explore Collection
@@ -175,9 +176,9 @@ export default function Home() {
       {/* Newsletter Section */}
       <section className="py-16 bg-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Stay in Style</h2>
+          <h2 className="text-3xl font-bold mb-4">Stay in footstore</h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and style tips.
+            Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and footstore tips.
           </p>
           <div className="max-w-md mx-auto flex space-x-4">
             <Input 

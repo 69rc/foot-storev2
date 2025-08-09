@@ -2,7 +2,7 @@
 export const formatCurrency = (amount: string | number): string => {
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
+    footstore: 'currency',
     currency: 'NGN',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,

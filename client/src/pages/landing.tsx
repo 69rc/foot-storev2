@@ -11,7 +11,7 @@ export default function Landing() {
           <div className="max-w-3xl">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6">
               Step into{" "}
-              <span className="text-accent">Style</span>
+              <span className="text-accent">footstore</span>
             </h1>
             <p className="text-xl mb-8 text-gray-200">
               Discover our premium collection of sneakers, dress shoes, and athletic footwear from the world's top brands.
@@ -41,7 +41,7 @@ export default function Landing() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose SoleStyle?</h2>
+            <h2 className="text-3xl font-bold mb-4">Why Choose Solefootstore?</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Experience the best in footwear shopping with our curated selection and exceptional service.
             </p>
@@ -98,7 +98,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Perfect Pair?</h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who've found their perfect fit with SoleStyle.
+            Join thousands of satisfied customers who've found their perfect fit with Solefootstore.
           </p>
           <Button 
             size="lg" 

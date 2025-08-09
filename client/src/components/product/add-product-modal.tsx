@@ -321,7 +321,7 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
                           alt="Product preview" 
                           className="w-32 h-32 object-cover rounded-lg border"
                           onError={(e) => {
-                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.footstore.display = 'none';
                           }}
                         />
                         {selectedImage && (
